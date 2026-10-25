@@ -1,0 +1,706 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Паша — Личная страница</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Canvas Confetti for Guest Form Feedback -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap');
+        
+        * {
+            font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        }
+
+        body {
+            background-color: #0b0d17;
+            background-image: 
+                radial-gradient(at 0% 0%, rgba(139, 92, 246, 0.15) 0px, transparent 50%),
+                radial-gradient(at 100% 0%, rgba(236, 72, 153, 0.12) 0px, transparent 50%),
+                radial-gradient(at 50% 100%, rgba(245, 158, 11, 0.1) 0px, transparent 50%);
+            background-attachment: fixed;
+            color: #f3f4f6;
+        }
+
+        /* Glassmorphism utility classes */
+        .glass-card {
+            background: rgba(23, 27, 44, 0.65);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.4);
+        }
+
+        .glass-nav {
+            background: rgba(15, 18, 30, 0.8);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .glass-pill {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(8px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .glass-pill:hover {
+            background: rgba(255, 255, 255, 0.12);
+            border-color: rgba(168, 85, 247, 0.4);
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #0b0d17;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #2e3552;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #4b5563;
+        }
+
+        .gradient-text {
+            background: linear-gradient(135deg, #a855f7 0%, #ec4899 50%, #f59e0b 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .tab-btn.active {
+            background: linear-gradient(135deg, rgba(168, 85, 247, 0.25), rgba(236, 72, 153, 0.25));
+            border-color: rgba(168, 85, 247, 0.5);
+            color: #ffffff;
+            box-shadow: 0 0 15px rgba(168, 85, 247, 0.2);
+        }
+
+        /* Audio visualizer bar animation */
+        .bar {
+            transition: height 0.15s ease;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col justify-between selection:bg-purple-500 selection:text-white">
+
+    <!-- Header Navigation & Music Player Bar -->
+    <header class="sticky top-0 z-50 glass-nav px-4 py-3">
+        <div class="max-w-6xl mx-auto flex flex-wrap items-center justify-between gap-4">
+            
+            <!-- Logo / Name -->
+            <div class="flex items-center space-x-3">
+                <div class="w-10 h-10 rounded-2xl bg-gradient-to-tr from-purple-600 via-pink-500 to-amber-400 flex items-center justify-center font-bold text-white text-xl shadow-lg shadow-purple-500/20">
+                    П
+                </div>
+                <div>
+                    <h1 class="font-bold text-lg leading-tight">Паша</h1>
+                    <p class="text-xs text-gray-400 flex items-center gap-1">
+                        <i class="fa-solid me-1 fa-location-dot text-purple-400"></i> Вологдa, ВкПиТ
+                    </p>
+                </div>
+            </div>
+
+            <!-- Music Player Widget (Synthetic Acoustic Guitar & Chill Piano) -->
+            <div class="flex items-center gap-3 bg-white/5 border border-white/10 px-4 py-2 rounded-2xl">
+                <button id="playAudioBtn" onclick="toggleAudio()" class="w-9 h-9 rounded-full bg-purple-600 hover:bg-purple-500 text-white flex items-center justify-center transition-all shadow-md shadow-purple-600/30">
+                    <i id="playIcon" class="fa-solid fa-play text-sm"></i>
+                </button>
+                
+                <div class="flex flex-col min-w-[120px]">
+                    <span class="text-xs font-semibold text-gray-200" id="songTitle">Гитара & Фортепиано</span>
+                    <span class="text-[10px] text-gray-400" id="audioStatus">Нажми для атмосферы</span>
+                </div>
+
+                <!-- Visualizer Bars -->
+                <div id="visualizer" class="flex items-end gap-[3px] h-6 w-12 px-1">
+                    <div class="bar w-1 bg-purple-400 rounded-full h-1"></div>
+                    <div class="bar w-1 bg-pink-400 rounded-full h-1"></div>
+                    <div class="bar w-1 bg-amber-400 rounded-full h-1"></div>
+                    <div class="bar w-1 bg-purple-400 rounded-full h-1"></div>
+                </div>
+            </div>
+
+            <!-- Fast Contact Button -->
+            <div class="flex items-center gap-2">
+                <a href="https://t.me/" target="_blank" class="glass-pill px-4 py-2 rounded-xl text-xs font-medium flex items-center gap-2 hover:text-purple-300 transition-all">
+                    <i class="fa-brands fa-telegram text-sky-400 text-sm"></i>
+                    <span>Написать в ТГ</span>
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content Container -->
+    <main class="max-w-6xl mx-auto px-4 py-8 w-full flex-grow">
+        
+        <!-- Profile Banner Card -->
+        <div class="glass-card rounded-3xl p-6 md:p-8 mb-8 relative overflow-hidden">
+            <div class="absolute -right-12 -top-12 w-64 h-64 bg-purple-600/10 rounded-full blur-3xl pointer-events-none"></div>
+            <div class="absolute -left-12 -bottom-12 w-64 h-64 bg-pink-600/10 rounded-full blur-3xl pointer-events-none"></div>
+
+            <div class="flex flex-col md:flex-row items-center md:items-start gap-6 relative z-10">
+                <!-- Avatar Circle -->
+                <div class="relative group">
+                    <div class="w-28 h-28 md:w-32 md:h-32 rounded-3xl bg-gradient-to-br from-purple-600 via-pink-500 to-amber-500 p-[3px] shadow-2xl shadow-purple-900/40">
+                        <div class="w-full h-full bg-slate-900 rounded-[21px] flex flex-col items-center justify-center text-4xl font-extrabold text-white">
+                            <i class="fa-solid fa-guitar text-purple-400 text-3xl mb-1"></i>
+                            <span class="text-xs uppercase tracking-widest text-gray-400 font-semibold">Паша</span>
+                        </div>
+                    </div>
+                    <span class="absolute bottom-1 right-1 w-5 h-5 bg-emerald-500 border-4 border-slate-900 rounded-full" title="В сети / Доступен"></span>
+                </div>
+
+                <!-- Bio Info Header -->
+                <div class="flex-grow text-center md:text-left space-y-2">
+                    <div class="flex flex-wrap items-center justify-center md:justify-start gap-3">
+                        <h2 class="text-3xl font-extrabold text-white tracking-tight">Паша</h2>
+                        <span class="px-3 py-1 bg-purple-500/10 border border-purple-500/20 text-purple-300 text-xs rounded-full font-medium">
+                            <i class="fa-solid fa-graduation-cap me-1"></i> ВкПиТ
+                        </span>
+                        <span class="px-3 py-1 bg-amber-500/10 border border-amber-500/20 text-amber-300 text-xs rounded-full font-medium">
+                            <i class="fa-solid fa-music me-1"></i> Музыкант & Автор
+                        </span>
+                    </div>
+
+                    <p class="text-gray-300 italic text-base max-w-2xl pt-1">
+                        «Никогда не сдавайтесь, даже если опустились руки.»
+                    </p>
+
+                    <!-- Quick Highlights Badges -->
+                    <div class="flex flex-wrap justify-center md:justify-start gap-2 pt-3">
+                        <span class="glass-pill px-3 py-1.5 rounded-lg text-xs text-gray-300 flex items-center gap-1.5">
+                            <i class="fa-solid fa-ruler-vertical text-purple-400"></i> Высокий
+                        </span>
+                        <span class="glass-pill px-3 py-1.5 rounded-lg text-xs text-gray-300 flex items-center gap-1.5">
+                            <i class="fa-solid fa-shield-halved text-pink-400"></i> Верный & Прямолинейный
+                        </span>
+                        <span class="glass-pill px-3 py-1.5 rounded-lg text-xs text-gray-300 flex items-center gap-1.5">
+                            <i class="fa-solid fa-city text-amber-400"></i> Вологда
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tab Navigation Buttons -->
+        <div class="flex overflow-x-auto gap-2 pb-4 mb-6 no-scrollbar border-b border-white/5">
+            <button onclick="switchTab('about')" id="tab-about" class="tab-btn active whitespace-nowrap px-5 py-3 rounded-2xl glass-pill text-sm font-medium text-gray-300 hover:text-white transition-all flex items-center gap-2">
+                <i class="fa-solid fa-user text-purple-400"></i> О себе
+            </button>
+            <button onclick="switchTab('hobbies')" id="tab-hobbies" class="tab-btn whitespace-nowrap px-5 py-3 rounded-2xl glass-pill text-sm font-medium text-gray-300 hover:text-white transition-all flex items-center gap-2">
+                <i class="fa-solid fa-guitar text-pink-400"></i> Увлечения
+            </button>
+            <button onclick="switchTab('communication')" id="tab-communication" class="tab-btn whitespace-nowrap px-5 py-3 rounded-2xl glass-pill text-sm font-medium text-gray-300 hover:text-white transition-all flex items-center gap-2">
+                <i class="fa-solid fa-comments text-amber-400"></i> В общении
+            </button>
+            <button onclick="switchTab('relationships')" id="tab-relationships" class="tab-btn whitespace-nowrap px-5 py-3 rounded-2xl glass-pill text-sm font-medium text-gray-300 hover:text-white transition-all flex items-center gap-2">
+                <i class="fa-solid fa-heart text-rose-400"></i> В отношениях
+            </button>
+            <button onclick="switchTab('character')" id="tab-character" class="tab-btn whitespace-nowrap px-5 py-3 rounded-2xl glass-pill text-sm font-medium text-gray-300 hover:text-white transition-all flex items-center gap-2">
+                <i class="fa-solid fa-bolt text-yellow-400"></i> Характер
+            </button>
+            <button onclick="switchTab('facts')" id="tab-facts" class="tab-btn whitespace-nowrap px-5 py-3 rounded-2xl glass-pill text-sm font-medium text-gray-300 hover:text-white transition-all flex items-center gap-2">
+                <i class="fa-solid fa-star text-indigo-400"></i> Факты
+            </button>
+            <button onclick="switchTab('guestbook')" id="tab-guestbook" class="tab-btn whitespace-nowrap px-5 py-3 rounded-2xl glass-pill text-sm font-medium text-purple-300 hover:text-white transition-all flex items-center gap-2 bg-purple-500/10 border-purple-500/30">
+                <i class="fa-solid fa-paper-plane text-purple-400"></i> Оставить отзыв / Встреча
+            </button>
+        </div>
+
+        <!-- Tab Contents Area -->
+        <div id="tab-contents">
+
+            <!-- 1. TAB: ABOUT -->
+            <div id="content-about" class="tab-content space-y-6">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <!-- Bio Overview -->
+                    <div class="glass-card rounded-3xl p-6 space-y-4">
+                        <div class="w-12 h-12 rounded-2xl bg-purple-500/10 border border-purple-500/20 flex items-center justify-center text-purple-400 text-xl">
+                            <i class="fa-solid fa-id-card"></i>
+                        </div>
+                        <h3 class="text-xl font-bold text-white">Кто я?</h3>
+                        <p class="text-gray-300 leading-relaxed text-sm md:text-base">
+                            Привет! Меня зовут <span class="text-purple-300 font-semibold">Паша</span>. Я живу в городе <span class="text-pink-300 font-semibold">Вологда</span> и учусь в <span class="text-amber-300 font-semibold">ВкПиТ</span>. 
+                        </p>
+                        <p class="text-gray-300 leading-relaxed text-sm md:text-base">
+                            Я высокий, открытый и прямолинейный парень. Увлекаюсь музыкой, пишу песни и стихи. Верю, что главное в жизни — быть настоящим и никогда не опускать руки, что бы ни происходило.
+                        </p>
+                    </div>
+
+                    <!-- Motto Card -->
+                    <div class="glass-card rounded-3xl p-6 space-y-4 flex flex-col justify-between border-l-4 border-l-purple-500">
+                        <div class="space-y-3">
+                            <div class="w-12 h-12 rounded-2xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-amber-400 text-xl">
+                                <i class="fa-solid fa-quote-left"></i>
+                            </div>
+                            <h3 class="text-xl font-bold text-white">Жизненный девиз</h3>
+                            <blockquote class="text-lg font-medium text-purple-200 italic">
+                                «Никогда не сдавайтесь, даже если опустились руки.»
+                            </blockquote>
+                        </div>
+                        <div class="pt-4 border-t border-white/5 text-xs text-gray-400 flex items-center justify-between">
+                            <span>Мой главный ориентир</span>
+                            <i class="fa-solid fa-compass text-amber-400"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 2. TAB: HOBBIES -->
+            <div id="content-hobbies" class="tab-content hidden space-y-6">
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <!-- Guitar & Music Card -->
+                    <div class="glass-card rounded-3xl p-6 space-y-4 border-t-2 border-t-purple-500">
+                        <div class="w-12 h-12 rounded-2xl bg-purple-500/10 border border-purple-500/20 flex items-center justify-center text-purple-400 text-xl">
+                            <i class="fa-solid fa-guitar"></i>
+                        </div>
+                        <h3 class="text-xl font-bold text-white">Музыка & Гитара</h3>
+                        <p class="text-gray-300 text-sm leading-relaxed">
+                            Мой любимый инструмент — <span class="text-purple-300 font-medium">Акустическая гитара</span>. Музыка для меня — это не просто хобби, а способ передавать эмоции и мысли.
+                        </p>
+                    </div>
+
+                    <!-- Songwriting -->
+                    <div class="glass-card rounded-3xl p-6 space-y-4 border-t-2 border-t-pink-500">
+                        <div class="w-12 h-12 rounded-2xl bg-pink-500/10 border border-pink-500/20 flex items-center justify-center text-pink-400 text-xl">
+                            <i class="fa-solid fa-pen-nib"></i>
+                        </div>
+                        <h3 class="text-xl font-bold text-white">Песни и Стихи</h3>
+                        <p class="text-gray-300 text-sm leading-relaxed">
+                            Люблю сочинять собственные песни и стихи. Вкладываю душу в каждую строчку и аккорд, отражая реальные чувства и жизненные ситуации.
+                        </p>
+                    </div>
+
+                    <!-- Walks -->
+                    <div class="glass-card rounded-3xl p-6 space-y-4 border-t-2 border-t-amber-500">
+                        <div class="w-12 h-12 rounded-2xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-amber-400 text-xl">
+                            <i class="fa-solid fa-person-walking"></i>
+                        </div>
+                        <h3 class="text-xl font-bold text-white">Прогулки по Вологде</h3>
+                        <p class="text-gray-300 text-sm leading-relaxed">
+                            Обожаю прогулки по любимому городу. В свободное время меня чаще всего можно застать за игрой на гитаре или гуляющим на свежем воздухе.
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 3. TAB: COMMUNICATION -->
+            <div id="content-communication" class="tab-content hidden space-y-6">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <!-- First impression vs Potential -->
+                    <div class="glass-card rounded-3xl p-6 space-y-4">
+                        <div class="w-12 h-12 rounded-2xl bg-blue-500/10 border border-blue-500/20 flex items-center justify-center text-blue-400 text-xl">
+                            <i class="fa-solid fa-masks-theater"></i>
+                        </div>
+                        <h3 class="text-xl font-bold text-white">Первое впечатление</h3>
+                        <p class="text-gray-300 text-sm leading-relaxed">
+                            Поначалу в новом окружении я могу казаться не очень отзывчивым или скучным. Но это лишь первое время! Стоит нам пообщаться ближе — и раскрывается весь мой потенциал и энергия общения.
+                        </p>
+                    </div>
+
+                    <!-- Friendly qualities -->
+                    <div class="glass-card rounded-3xl p-6 space-y-4">
+                        <div class="w-12 h-12 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400 text-xl">
+                            <i class="fa-solid fa-handshake"></i>
+                        </div>
+                        <h3 class="text-xl font-bold text-white">Какой я друг?</h3>
+                        <p class="text-gray-300 text-sm leading-relaxed">
+                            Надёжный. Всегда и везде помогу, поддержу в сложной ситуации и ворвусь абсолютно в любой кипиш и движуху!
+                        </p>
+                    </div>
+
+                    <!-- Contact preferences -->
+                    <div class="glass-card rounded-3xl p-6 md:col-span-2 space-y-4 bg-gradient-to-r from-purple-900/20 to-pink-900/20">
+                        <div class="flex items-center gap-3">
+                            <div class="w-10 h-10 rounded-xl bg-purple-500/20 text-purple-300 flex items-center justify-center text-lg">
+                                <i class="fa-solid fa-headset"></i>
+                            </div>
+                            <h3 class="text-lg font-bold text-white">Как со мной связаться?</h3>
+                        </div>
+                        <p class="text-gray-300 text-sm">
+                            Мой главный приоритет — <span class="text-amber-300 font-semibold">личные встречи</span>. Чтобы договориться о встрече или просто пообщаться, напишите мне в Telegram или позвоните!
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 4. TAB: RELATIONSHIPS -->
+            <div id="content-relationships" class="tab-content hidden space-y-6">
+                <div class="glass-card rounded-3xl p-6 md:p-8 space-y-6">
+                    <h3 class="text-2xl font-bold text-white flex items-center gap-3">
+                        <i class="fa-solid fa-heart text-rose-500"></i> Мои ценности в отношениях
+                    </h3>
+
+                    <!-- Grid of qualities -->
+                    <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+                        <div class="glass-pill p-4 rounded-2xl text-center space-y-2">
+                            <i class="fa-solid fa-hands-holding-child text-pink-400 text-xl"></i>
+                            <div class="text-sm font-semibold text-white">Забота</div>
+                        </div>
+                        <div class="glass-pill p-4 rounded-2xl text-center space-y-2">
+                            <i class="fa-solid fa-lock text-purple-400 text-xl"></i>
+                            <div class="text-sm font-semibold text-white">Верность</div>
+                        </div>
+                        <div class="glass-pill p-4 rounded-2xl text-center space-y-2">
+                            <i class="fa-solid fa-sun text-amber-400 text-xl"></i>
+                            <div class="text-sm font-semibold text-white">Ласка & Доброта</div>
+                        </div>
+                        <div class="glass-pill p-4 rounded-2xl text-center space-y-2">
+                            <i class="fa-solid fa-door-open text-sky-400 text-xl"></i>
+                            <div class="text-sm font-semibold text-white">Открытость</div>
+                        </div>
+                        <div class="glass-pill p-4 rounded-2xl text-center space-y-2">
+                            <i class="fa-solid fa-comments text-emerald-400 text-xl"></i>
+                            <div class="text-sm font-semibold text-white">Разговоры обо всём</div>
+                        </div>
+                        <div class="glass-pill p-4 rounded-2xl text-center space-y-2">
+                            <i class="fa-solid fa-hand-holding-heart text-rose-400 text-xl"></i>
+                            <div class="text-sm font-semibold text-white">Тактильность</div>
+                        </div>
+                        <div class="glass-pill p-4 rounded-2xl text-center space-y-2">
+                            <i class="fa-solid fa-face-smile-beam text-yellow-400 text-xl"></i>
+                            <div class="text-sm font-semibold text-white">Искренний интерес</div>
+                        </div>
+                        <div class="glass-pill p-4 rounded-2xl text-center space-y-2">
+                            <i class="fa-solid fa-shield-heart text-indigo-400 text-xl"></i>
+                            <div class="text-sm font-semibold text-white">Поддержка</div>
+                        </div>
+                    </div>
+
+                    <!-- Expression & Ideal Date -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 pt-4 border-t border-white/5">
+                        <div class="space-y-2">
+                            <h4 class="text-white font-semibold text-base flex items-center gap-2">
+                                <i class="fa-solid fa-comment-dots text-pink-400"></i> Как проявляю внимание:
+                            </h4>
+                            <p class="text-gray-300 text-sm">Тёплыми словами, реальными поступками и всесторонней поддержкой.</p>
+                        </div>
+                        <div class="space-y-2">
+                            <h4 class="text-white font-semibold text-base flex items-center gap-2">
+                                <i class="fa-solid fa-shoe-prints text-amber-400"></i> Идеальное свидание:
+                            </h4>
+                            <p class="text-gray-300 text-sm">Уютная прогулка по городу и искренний разговор по душам.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 5. TAB: CHARACTER -->
+            <div id="content-character" class="tab-content hidden space-y-6">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <!-- Character Traits -->
+                    <div class="glass-card rounded-3xl p-6 space-y-4">
+                        <h3 class="text-xl font-bold text-white flex items-center gap-2">
+                            <i class="fa-solid fa-user-gear text-yellow-400"></i> Главные черты
+                        </h3>
+                        <ul class="space-y-2 text-sm text-gray-300">
+                            <li class="flex items-center gap-2"><i class="fa-solid fa-check text-emerald-400"></i> <strong>Честный & Прямолинейный:</strong> Говорю как есть.</li>
+                            <li class="flex items-center gap-2"><i class="fa-solid fa-check text-emerald-400"></i> <strong>Спокойный:</strong> Но иногда могу быть вспыльчивым.</li>
+                            <li class="flex items-center gap-2"><i class="fa-solid fa-check text-emerald-400"></i> <strong>Весёлый & Внимательный:</strong> Люблю хорошую шутку и замечаю детали.</li>
+                            <li class="flex items-center gap-2"><i class="fa-solid fa-check text-emerald-400"></i> <strong>Отзывчивый:</strong> Всегда готов помочь.</li>
+                        </ul>
+                    </div>
+
+                    <!-- Important Note -->
+                    <div class="glass-card rounded-3xl p-6 space-y-4 border-l-4 border-l-rose-500 flex flex-col justify-between">
+                        <div class="space-y-3">
+                            <h3 class="text-xl font-bold text-white flex items-center gap-2">
+                                <i class="fa-solid fa-triangle-exclamation text-rose-400"></i> Особенность характера
+                            </h3>
+                            <blockquote class="text-sm md:text-base text-gray-200 bg-white/5 p-4 rounded-2xl border border-white/5">
+                                «Холод — не знак потери интереса.<br>
+                                Знак потери интереса узнаётся последствиями.»
+                            </blockquote>
+                        </div>
+                        <p class="text-xs text-gray-400">Помните эту деталь при общении со мной!</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 6. TAB: FACTS -->
+            <div id="content-facts" class="tab-content hidden space-y-6">
+                <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+                    
+                    <div class="glass-card p-6 rounded-3xl text-center space-y-3">
+                        <div class="w-14 h-14 mx-auto rounded-2xl bg-purple-500/10 border border-purple-500/20 flex items-center justify-center text-purple-400 text-2xl">
+                            <i class="fa-solid fa-up-long"></i>
+                        </div>
+                        <h4 class="font-bold text-white text-lg">Высокий рост</h4>
+                        <p class="text-xs text-gray-400">Вижу горизонт чуть дальше остальных!</p>
+                    </div>
+
+                    <div class="glass-card p-6 rounded-3xl text-center space-y-3">
+                        <div class="w-14 h-14 mx-auto rounded-2xl bg-pink-500/10 border border-pink-500/20 flex items-center justify-center text-pink-400 text-2xl">
+                            <i class="fa-solid fa-smile-beam"></i>
+                        </div>
+                        <h4 class="font-bold text-white text-lg">Милый & Добрый</h4>
+                        <p class="text-xs text-gray-400">Отношусь к людям с открытой душой.</p>
+                    </div>
+
+                    <div class="glass-card p-6 rounded-3xl text-center space-y-3">
+                        <div class="w-14 h-14 mx-auto rounded-2xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-amber-400 text-2xl">
+                            <i class="fa-solid fa-shield text-2xl"></i>
+                        </div>
+                        <h4 class="font-bold text-white text-lg">Преданный & Верный</h4>
+                        <p class="text-xs text-gray-400">Ценю своих людей и никому не предам.</p>
+                    </div>
+
+                    <div class="glass-card p-6 rounded-3xl text-center space-y-3">
+                        <div class="w-14 h-14 mx-auto rounded-2xl bg-sky-500/10 border border-sky-500/20 flex items-center justify-center text-sky-400 text-2xl">
+                            <i class="fa-solid fa-bullseye"></i>
+                        </div>
+                        <h4 class="font-bold text-white text-lg">Прямолинейный</h4>
+                        <p class="text-xs text-gray-400">Без лишних масок и фальши.</p>
+                    </div>
+
+                    <div class="glass-card p-6 rounded-3xl text-center space-y-3 md:col-span-2">
+                        <div class="w-14 h-14 mx-auto rounded-2xl bg-rose-500/10 border border-rose-500/20 flex items-center justify-center text-rose-400 text-2xl">
+                            <i class="fa-solid fa-music"></i>
+                        </div>
+                        <h4 class="font-bold text-white text-lg">Собственное творчество</h4>
+                        <p class="text-xs text-gray-400">Пишу личные песни и стихотворения о жизни и чувствах.</p>
+                    </div>
+
+                </div>
+            </div>
+
+            <!-- 7. TAB: GUESTBOOK & INTERACTION FORM -->
+            <div id="content-guestbook" class="tab-content hidden space-y-6">
+                <div class="glass-card rounded-3xl p-6 md:p-8 max-w-2xl mx-auto space-y-6">
+                    <div class="text-center space-y-2">
+                        <h3 class="text-2xl font-bold text-white">Оставь сообщение Паше</h3>
+                        <p class="text-sm text-gray-400">Хочешь погулять, пообщаться или просто оставить отзыв?</p>
+                    </div>
+
+                    <form id="guestForm" onsubmit="handleGuestSubmit(event)" class="space-y-5">
+                        
+                        <!-- Choice radio buttons -->
+                        <div class="space-y-2">
+                            <label class="text-xs font-semibold text-gray-300 uppercase tracking-wider">Твое отношение / Цель:</label>
+                            <div class="grid grid-cols-1 gap-2">
+                                <label class="flex items-center gap-3 p-3 rounded-xl bg-white/5 border border-white/10 cursor-pointer hover:bg-white/10 transition-all">
+                                    <input type="radio" name="intent" value="friend" checked class="accent-purple-500">
+                                    <span class="text-sm text-gray-200">🤝 Нравишься как друг — хочу погулять и пообщаться!</span>
+                                </label>
+                                <label class="flex items-center gap-3 p-3 rounded-xl bg-white/5 border border-white/10 cursor-pointer hover:bg-white/10 transition-all">
+                                    <input type="radio" name="intent" value="dating" class="accent-pink-500">
+                                    <span class="text-sm text-gray-200">❤️ Нравишься — хочу попробовать пообщаться ближе!</span>
+                                </label>
+                                <label class="flex items-center gap-3 p-3 rounded-xl bg-white/5 border border-white/10 cursor-pointer hover:bg-white/10 transition-all">
+                                    <input type="radio" name="intent" value="visitor" class="accent-amber-500">
+                                    <span class="text-sm text-gray-200">👀 Просто зашел(а) посмотреть красивый сайт</span>
+                                </label>
+                            </div>
+                        </div>
+
+                        <!-- Name -->
+                        <div class="space-y-1">
+                            <label class="text-xs font-semibold text-gray-300">Как тебя зовут / Ник:</label>
+                            <input type="text" required placeholder="Твое имя..." class="w-full px-4 py-3 rounded-xl bg-slate-900/80 border border-white/10 text-white placeholder-gray-500 focus:outline-none focus:border-purple-500 transition-all">
+                        </div>
+
+                        <!-- Contact -->
+                        <div class="space-y-1">
+                            <label class="text-xs font-semibold text-gray-300">Контакты для связи (ТГ, ВК, телефон):</label>
+                            <input type="text" placeholder="@username или номер" class="w-full px-4 py-3 rounded-xl bg-slate-900/80 border border-white/10 text-white placeholder-gray-500 focus:outline-none focus:border-purple-500 transition-all">
+                        </div>
+
+                        <!-- Walk location / idea -->
+                        <div class="space-y-1">
+                            <label class="text-xs font-semibold text-gray-300">Предложение / Сообщение / Место для прогулки:</label>
+                            <textarea rows="3" placeholder="Напиши что-нибудь классное..." class="w-full px-4 py-3 rounded-xl bg-slate-900/80 border border-white/10 text-white placeholder-gray-500 focus:outline-none focus:border-purple-500 transition-all"></textarea>
+                        </div>
+
+                        <!-- Submit button -->
+                        <button type="submit" class="w-full py-4 rounded-xl bg-gradient-to-r from-purple-600 via-pink-600 to-amber-500 font-bold text-white shadow-lg shadow-purple-600/30 hover:opacity-95 transition-all text-sm uppercase tracking-wider flex items-center justify-center gap-2">
+                            <i class="fa-solid fa-paper-plane"></i> Отправить Паше
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="glass-nav py-6 mt-12">
+        <div class="max-w-6xl mx-auto px-4 text-center space-y-2">
+            <p class="text-sm text-gray-400">© 2026 Персональная страница Паши • Вологда</p>
+            <p class="text-xs text-gray-500">Сделано с душой и музыкой 🎸</p>
+        </div>
+    </footer>
+
+    <!-- Custom Modal Popup after form submit -->
+    <div id="thankYouModal" class="fixed inset-0 bg-black/80 backdrop-blur-md flex items-center justify-center z-50 hidden p-4">
+        <div class="glass-card rounded-3xl p-8 max-w-md w-full text-center space-y-4 border border-purple-500/30">
+            <div class="w-16 h-16 rounded-full bg-purple-500/20 text-purple-400 text-3xl flex items-center justify-center mx-auto">
+                <i class="fa-solid fa-heart"></i>
+            </div>
+            <h3 class="text-2xl font-bold text-white">Спасибо!</h3>
+            <p class="text-gray-300 text-sm">Твое сообщение отправлено! Паша скоро ответит тебе, если указаны контакты.</p>
+            <button onclick="closeModal()" class="px-6 py-2.5 bg-purple-600 hover:bg-purple-500 text-white text-sm font-semibold rounded-xl transition-all">
+                Закрыть
+            </button>
+        </div>
+    </div>
+
+    <!-- JavaScript Engine -->
+    <script>
+        // Tab Switcher Logic
+        function switchTab(tabName) {
+            // Hide all content blocks
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+            
+            // Remove active style from buttons
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+
+            // Show current tab content
+            const targetContent = document.getElementById('content-' + tabName);
+            if (targetContent) {
+                targetContent.classList.remove('hidden');
+            }
+
+            // Set active class to clicked tab button
+            const targetBtn = document.getElementById('tab-' + tabName);
+            if (targetBtn) {
+                targetBtn.classList.add('active');
+            }
+        }
+
+        // Web Audio API Synthesizer (Acoustic Guitar Strum & Calm Piano Arpeggios)
+        let audioCtx = null;
+        let isPlaying = false;
+        let timerId = null;
+
+        function initAudio() {
+            if (!audioCtx) {
+                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            }
+        }
+
+        function playChordNote(freq, type = 'sine', duration = 1.5, delay = 0) {
+            if (!audioCtx || !isPlaying) return;
+
+            setTimeout(() => {
+                if (!isPlaying) return;
+                try {
+                    const osc = audioCtx.createOscillator();
+                    const gain = audioCtx.createGain();
+
+                    osc.type = type;
+                    osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+
+                    // Soft attack and decay for guitar/piano feel
+                    gain.gain.setValueAtTime(0, audioCtx.currentTime);
+                    gain.gain.linearRampToValueAtTime(0.15, audioCtx.currentTime + 0.05);
+                    gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + duration);
+
+                    osc.connect(gain);
+                    gain.connect(audioCtx.destination);
+
+                    osc.start();
+                    osc.stop(audioCtx.currentTime + duration);
+                } catch (e) {}
+            }, delay * 1000);
+        }
+
+        const chordProgression = [
+            // Am chord notes
+            [220, 261.63, 329.63, 440],
+            // F chord notes
+            [174.61, 220, 261.63, 349.23],
+            // C chord notes
+            [130.81, 164.81, 196.00, 261.63],
+            // G chord notes
+            [146.83, 196.00, 246.94, 293.66]
+        ];
+
+        let chordIdx = 0;
+
+        function loopMusic() {
+            if (!isPlaying) return;
+
+            const notes = chordProgression[chordIdx];
+            chordIdx = (chordIdx + 1) % chordProgression.length;
+
+            // Guitar arpeggio strum
+            notes.forEach((freq, idx) => {
+                playChordNote(freq, 'triangle', 2.0, idx * 0.12);
+            });
+
+            // High melody note
+            playChordNote(notes[2] * 2, 'sine', 1.8, 0.6);
+
+            animateBars();
+            timerId = setTimeout(loopMusic, 2400);
+        }
+
+        function toggleAudio() {
+            initAudio();
+            if (audioCtx.state === 'suspended') {
+                audioCtx.resume();
+            }
+
+            isPlaying = !isPlaying;
+            const playIcon = document.getElementById('playIcon');
+            const audioStatus = document.getElementById('audioStatus');
+
+            if (isPlaying) {
+                playIcon.className = 'fa-solid fa-pause text-sm';
+                audioStatus.textContent = 'Играет гитара...';
+                loopMusic();
+            } else {
+                playIcon.className = 'fa-solid fa-play text-sm';
+                audioStatus.textContent = 'Нажми для атмосферы';
+                clearTimeout(timerId);
+                resetBars();
+            }
+        }
+
+        // Visualizer Bar Animations
+        function animateBars() {
+            const bars = document.querySelectorAll('.bar');
+            bars.forEach(bar => {
+                const randomHeight = Math.floor(Math.random() * 18) + 6;
+                bar.style.height = randomHeight + 'px';
+            });
+        }
+
+        function resetBars() {
+            const bars = document.querySelectorAll('.bar');
+            bars.forEach(bar => {
+                bar.style.height = '4px';
+            });
+        }
+
+        // Handle Guest Form Submit
+        function handleGuestSubmit(e) {
+            e.preventDefault();
+
+            // Trigger confetti
+            if (typeof confetti === 'function') {
+                confetti({
+                    particleCount: 80,
+                    spread: 70,
+                    origin: { y: 0.6 }
+                });
+            }
+
+            // Show modal
+            document.getElementById('thankYouModal').classList.remove('hidden');
+            e.target.reset();
+        }
+
+        function closeModal() {
+            document.getElementById('thankYouModal').classList.add('hidden');
+        }
+    </script>
+</body>
+</html>
